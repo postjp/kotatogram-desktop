@@ -59,9 +59,9 @@ namespace {
 using internal::WaylandIntegration;
 using WorkMode = Core::Settings::WorkMode;
 
-constexpr auto kPanelTrayIconName = "telegram-panel"_cs;
-constexpr auto kMutePanelTrayIconName = "telegram-mute-panel"_cs;
-constexpr auto kAttentionPanelTrayIconName = "telegram-attention-panel"_cs;
+constexpr auto kPanelTrayIconName = "kotatogram-panel"_cs;
+constexpr auto kMutePanelTrayIconName = "kotatogram-mute-panel"_cs;
+constexpr auto kAttentionPanelTrayIconName = "kotatogram-attention-panel"_cs;
 
 bool TrayIconMuted = true;
 int32 TrayIconCount = 0;
@@ -573,7 +573,7 @@ void MainWindow::createGlobalMenu() {
 		});
 
 	auto quit = file->addAction(
-		tr::lng_mac_menu_quit_telegram(tr::now, lt_telegram, qsl("Telegram")),
+		tr::lng_mac_menu_quit_telegram(tr::now, lt_telegram, qsl("Kotatogram")),
 		this,
 		[=] { quitFromTray(); },
 		QKeySequence::Quit);
@@ -734,7 +734,7 @@ void MainWindow::createGlobalMenu() {
 		tr::lng_mac_menu_about_telegram(
 			tr::now,
 			lt_telegram,
-			qsl("Telegram")),
+			qsl("Kotatogram")),
 		[=] {
 			ensureWindowShown();
 			controller().show(Box<AboutBox>());
