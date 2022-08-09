@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "facades.h"
 
+#include "kotato/kotato_lang.h"
 #include "api/api_bot.h"
 #include "info/info_memento.h"
 #include "inline_bots/bot_attach_web_view.h"
@@ -140,7 +141,7 @@ void activateBotCommand(
 
 	case ButtonType::RequestLocation: {
 		hideSingleUseKeyboard(msg);
-		Ui::show(Ui::MakeInformBox(tr::lng_bot_share_location_unavailable()));
+		Ui::show(Ui::MakeInformBox(ktr("ktg_bot_share_location_unavailable")));
 	} break;
 
 	case ButtonType::RequestPhone: {
