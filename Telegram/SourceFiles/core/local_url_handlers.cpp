@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "core/local_url_handlers.h"
 
+#include "kotato/kotato_settings_menu.h"
 #include "api/api_authorizations.h"
 #include "api/api_confirm_phone.h"
 #include "api/api_text_entities.h"
@@ -457,6 +458,8 @@ bool ResolveSettings(
 		? ::Settings::Folders::Id()
 		: (section == qstr("devices"))
 		? ::Settings::Sessions::Id()
+		: (section == qstr("kotato"))
+		? ::Settings::Kotato::Id()
 		: ::Settings::Main::Id();
 	controller->showSettings(type);
 	controller->window().activate();
@@ -760,7 +763,7 @@ const std::vector<LocalUrlHandler> &LocalUrlHandlers() {
 			ResolvePrivatePost
 		},
 		{
-			qsl("^settings(/folders|/devices|/language)?$"),
+			qsl("^settings(/folders|/devices|/language|/kotato)?$"),
 			ResolveSettings
 		},
 		{
