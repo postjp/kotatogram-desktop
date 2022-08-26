@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "window/window_main_menu.h"
 
+#include "kotato/kotato_settings.h"
 #include "window/themes/window_theme.h"
 #include "window/window_peer_menu.h"
 #include "window/window_session_controller.h"
@@ -21,6 +22,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/wrap/vertical_layout.h"
 #include "ui/wrap/vertical_layout_reorder.h"
 #include "ui/text/format_values.h" // Ui::FormatPhone
+#include "ui/text/text_options.h"
 #include "ui/text/text_utilities.h"
 #include "ui/special_buttons.h"
 #include "ui/empty_userpic.h"
@@ -732,21 +734,34 @@ void MainMenu::paintEvent(QPaintEvent *e) {
 			- st::mainMenuCoverNameLeft
 			- _toggleAccounts->rightSkip();
 
-		p.setFont(st::semiboldFont);
 		p.setPen(st::windowBoldFg);
-		_controller->session().user()->nameText().drawLeftElided(
-			p,
-			st::mainMenuCoverNameLeft,
-			st::mainMenuCoverNameTop,
-			widthText,
-			width());
-		p.setFont(st::mainMenuPhoneFont);
-		p.setPen(st::windowSubTextFg);
-		p.drawTextLeft(
-			st::mainMenuCoverStatusLeft,
-			st::mainMenuCoverStatusTop,
-			width(),
-			_phoneText);
+		if (::Kotato::JsonSettings::GetBool("show_phone_in_drawer")) {
+			p.setFont(st::semiboldFont);
+			_controller->session().user()->nameText().drawLeftElided(
+				p,
+				st::mainMenuCoverNameLeft,
+				st::mainMenuCoverNameTop,
+				widthText,
+				width());
+			p.setFont(st::mainMenuPhoneFont);
+			p.setPen(st::windowSubTextFg);
+			p.drawTextLeft(
+				st::mainMenuCoverStatusLeft,
+				st::mainMenuCoverStatusTop,
+				width(),
+				_phoneText);
+		} else {
+			p.setFont(st::mainMenuCoverNameOnlyFont);
+			auto name = _controller->session().user()->nameText().toString();
+			auto nameStr = Ui::Text::String();
+			nameStr.setText(st::mainMenuCoverNameOnlyStyle, name, Ui::NameTextOptions());
+			nameStr.drawLeftElided(
+				p,
+				st::mainMenuCoverNameLeft,
+				st::mainMenuCoverNameOnlyTop,
+				widthText,
+				width());
+		}
 	}
 }
 
