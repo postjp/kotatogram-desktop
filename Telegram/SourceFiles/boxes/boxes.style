@@ -1073,4 +1073,9 @@ ringtonesBoxButton: SettingsButton(defaultSettingsButton) {
 	padding: margins(56px, 10px, 22px, 8px);
 	iconLeft: 25px;
 }
-ringtonesBoxSkip: 7px;
+
+fontsBoxTextStyle: TextStyle(defaultTextStyle) {
+	font: font(13px);
+	linkFont: font(13px);
+	linkFontOver: font(13px underline);
+}
