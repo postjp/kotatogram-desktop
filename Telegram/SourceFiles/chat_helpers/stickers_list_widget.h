@@ -399,6 +399,8 @@ private:
 	rpl::event_stream<> _checkForHide;
 	rpl::event_stream<TabbedSelector::Action> _choosingUpdated;
 
+	rpl::lifetime _lifetime;
+
 };
 
 } // namespace ChatHelpers
