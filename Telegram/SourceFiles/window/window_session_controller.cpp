@@ -69,6 +69,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "mainwidget.h"
 #include "mainwindow.h"
 #include "main/main_session.h"
+#include "main/main_account.h"
 #include "main/main_session_settings.h"
 #include "apiwrap.h"
 #include "api/api_chat_invite.h"
@@ -764,6 +765,33 @@ void SessionController::toggleFiltersMenu(bool enabled) {
 	_filtersMenuChanged.fire({});
 }
 
+void SessionController::reloadFiltersMenu() {
+	const auto enabled = !session().data().chatsFilters().list().empty();
+	if (enabled) {
+		auto previousFilter = activeChatsFilterCurrent();
+		rpl::single(rpl::empty) | rpl::then(
+			filtersMenuChanged()
+		) | rpl::start_with_next([=] {
+			toggleFiltersMenu(true);
+			if (previousFilter) {
+				if (activeChatsFilterCurrent() != previousFilter) {
+					resetFakeUnreadWhileOpened();
+				}
+				_activeChatsFilter.force_assign(previousFilter);
+				if (previousFilter) {
+					closeFolder(true);
+				}
+			}
+		}, lifetime());
+
+		if (activeChatsFilterCurrent() != 0) {
+			resetFakeUnreadWhileOpened();
+		}
+		_activeChatsFilter.force_assign(0);
+		toggleFiltersMenu(false);
+	}
+}
+
 void SessionController::refreshFiltersMenu() {
 	toggleFiltersMenu(!session().data().chatsFilters().list().empty());
 }
@@ -777,7 +805,9 @@ void SessionController::checkOpenedFilter() {
 		const auto &list = session().data().chatsFilters().list();
 		const auto i = ranges::find(list, filterId, &Data::ChatFilter::id);
 		if (i == end(list)) {
-			setActiveChatsFilter(0);
+			const auto defaultFilterId = session().account().defaultFilterId();
+			const auto j = ranges::find(list, FilterId(defaultFilterId), &Data::ChatFilter::id);
+			setActiveChatsFilter(j == end(list) ? 0 : defaultFilterId);
 		}
 	}
 }
@@ -796,8 +826,14 @@ void SessionController::openFolder(not_null<Data::Folder*> folder) {
 	_openedFolder = folder.get();
 }
 
-void SessionController::closeFolder() {
-	_openedFolder = nullptr;
+void SessionController::closeFolder(bool force) {
+	const auto defaultFilterId = session().account().defaultFilterId();
+	if (defaultFilterId == 0 || force) {
+		_openedFolder = nullptr;
+	} else {
+		setActiveChatsFilter(defaultFilterId);
+		checkOpenedFilter();
+	}
 }
 
 const rpl::variable<Data::Folder*> &SessionController::openedFolder() const {
@@ -1513,7 +1549,7 @@ void SessionController::setActiveChatsFilter(FilterId id) {
 	}
 	_activeChatsFilter.force_assign(id);
 	if (id) {
-		closeFolder();
+		closeFolder(true);
 	}
 	if (adaptive().isOneColumn()) {
 		Ui::showChatsList(&session());
