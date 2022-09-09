@@ -35,6 +35,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/boxes/confirm_box.h"
 #include "main/main_session.h"
 #include "menu/add_action_callback_factory.h"
+#include "menu/menu_mute.h"
 #include "mtproto/mtproto_config.h"
 #include "data/data_download_manager.h"
 #include "data/data_session.h"
@@ -427,6 +428,11 @@ void WrapWidget::createTopBar() {
 		}, _topBar->lifetime());
 	}
 
+	if (section.type() == Section::Type::Profile
+		&& ::Kotato::JsonSettings::GetBool("profile_top_mute")) {
+		addProfileNotificationsButton();
+	}
+
 	_topBar->lower();
 	_topBar->resizeToWidth(width());
 	_topBar->finishAnimating();
@@ -506,6 +512,37 @@ void WrapWidget::addProfileCallsButton() {
 	if (user && user->callsStatus() == UserData::CallsStatus::Unknown) {
 		user->updateFull();
 	}
+}
+
+void WrapWidget::addProfileNotificationsButton() {
+	Expects(_topBar != nullptr);
+
+	const auto peer = key().peer();
+	if (!peer || peer->isSelf()) {
+		return;
+	}
+	auto notifications = _topBar->addButton(
+		base::make_unique_q<Ui::IconButton>(
+			_topBar,
+			(wrap() == Wrap::Layer
+				? st::infoLayerTopBarNotifications
+				: st::infoTopBarNotifications)));
+	MuteMenu::SetupMuteMenu(
+		notifications,
+		notifications->clicks() | rpl::to_empty,
+		{ peer, std::make_shared<Window::Show>(_controller->parentController()) });
+	Profile::NotificationsEnabledValue(
+		peer
+	) | rpl::start_with_next([notifications](bool enabled) {
+		const auto iconOverride = enabled
+			? &st::infoNotificationsActive
+			: nullptr;
+		const auto rippleOverride = enabled
+			? &st::lightButtonBgOver
+			: nullptr;
+		notifications->setIconOverride(iconOverride, iconOverride);
+		notifications->setRippleColorOverride(rippleOverride);
+	}, notifications->lifetime());
 }
 
 void WrapWidget::showTopBarMenu(bool check) {
