@@ -17,6 +17,7 @@ class SessionController;
 
 namespace Ui {
 class PlainShadow;
+class DropdownMenu;
 } // namespace Ui
 
 class StickerSetBox final : public Ui::BoxContent {
@@ -42,12 +43,14 @@ private:
 
 	void updateTitleAndButtons();
 	void updateButtons();
+	bool showMenu(not_null<Ui::IconButton*> button);
 	void addStickers();
 	void copyStickersLink();
 	void handleError(Error error);
 
 	const not_null<Window::SessionController*> _controller;
 	const StickerSetIdentifier _set;
+	base::unique_qptr<Ui::DropdownMenu> _menu;
 
 	class Inner;
 	QPointer<Inner> _inner;
