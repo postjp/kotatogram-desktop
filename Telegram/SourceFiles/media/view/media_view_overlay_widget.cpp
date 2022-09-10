@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "media/view/media_view_overlay_widget.h"
 
+#include "kotato/kotato_lang.h"
 #include "apiwrap.h"
 #include "api/api_attached_stickers.h"
 #include "api/api_peer_photo.h"
@@ -887,7 +888,7 @@ void OverlayWidget::refreshCaptionGeometry() {
 		_groupThumbs = nullptr;
 		_groupThumbsRect = QRect();
 	}
-	const auto captionBottom = (_streamed && !videoIsGifOrUserpic())
+	const auto captionBottom = (_streamed/* && !videoIsGifOrUserpic()*/)
 		? (_streamed->controls.y() - st::mediaviewCaptionMargin.height())
 		: _groupThumbs
 		? _groupThumbsTop
@@ -1203,7 +1204,7 @@ void OverlayWidget::contentSizeChanged() {
 }
 
 void OverlayWidget::resizeContentByScreenSize() {
-	const auto bottom = (!_streamed || videoIsGifOrUserpic())
+	const auto bottom = (!_streamed/* || videoIsGifOrUserpic()*/)
 		? height()
 		: (_streamed->controls.y()
 			- st::mediaviewCaptionPadding.bottom()
@@ -1509,7 +1510,7 @@ void OverlayWidget::hideControls(bool force) {
 			|| _menu
 			|| _mousePressed
 			|| (_fullScreenVideo
-				&& !videoIsGifOrUserpic()
+				/*&& !videoIsGifOrUserpic()*/
 				&& _streamed->controls.geometry().contains(_lastMouseMovePos))) {
 			return;
 		}
@@ -2640,7 +2641,7 @@ void OverlayWidget::displayDocument(
 	}
 	refreshFromLabel();
 	_blurred = false;
-	if (_showAsPip && _streamed && !videoIsGifOrUserpic()) {
+	if (_showAsPip && _streamed/* && !videoIsGifOrUserpic()*/) {
 		switchToPip();
 	} else {
 		displayFinished();
@@ -2862,12 +2863,12 @@ bool OverlayWidget::createStreamingObjects() {
 			|| _document->isVoiceMessage()
 			|| _document->isVideoMessage());
 
-	if (videoIsGifOrUserpic()) {
-		_streamed->controls.hide();
-	} else {
+	// if (videoIsGifOrUserpic()) {
+	// 	_streamed->controls.hide();
+	// } else {
 		refreshClipControllerGeometry();
 		_streamed->controls.show();
-	}
+	// }
 	return true;
 }
 
@@ -3055,7 +3056,7 @@ void OverlayWidget::initThemePreview() {
 }
 
 void OverlayWidget::refreshClipControllerGeometry() {
-	if (!_streamed || videoIsGifOrUserpic()) {
+	if (!_streamed/* || videoIsGifOrUserpic()*/) {
 		return;
 	}
 
@@ -3090,9 +3091,9 @@ void OverlayWidget::playbackControlsFromFullScreen() {
 }
 
 void OverlayWidget::playbackControlsToPictureInPicture() {
-	if (!videoIsGifOrUserpic()) {
+	//if (!videoIsGifOrUserpic()) {
 		switchToPip();
-	}
+	//}
 }
 
 void OverlayWidget::playbackControlsRotate() {
@@ -3248,7 +3249,7 @@ void OverlayWidget::playbackControlsSpeedChanged(float64 speed) {
 		Core::App().settings().setVideoPlaybackSpeed(speed);
 		Core::App().saveSettingsDelayed();
 	}
-	if (_streamed && !videoIsGifOrUserpic()) {
+	if (_streamed/* && !videoIsGifOrUserpic()*/) {
 		DEBUG_LOG(("Media playback speed: %1 to _streamed.").arg(speed));
 		_streamed->instance.setSpeed(speed);
 	}
@@ -3261,8 +3262,11 @@ float64 OverlayWidget::playbackControlsCurrentSpeed() {
 }
 
 void OverlayWidget::switchToPip() {
+	if (_document == nullptr) {
+		Ui::Toast::Show(_widget, ktr("ktg_pip_not_supported"));
+		return;
+	}
 	Expects(_streamed != nullptr);
-	Expects(_document != nullptr);
 
 	const auto document = _document;
 	const auto message = _message;
@@ -3296,7 +3300,7 @@ void OverlayWidget::switchToPip() {
 void OverlayWidget::playbackToggleFullScreen() {
 	Expects(_streamed != nullptr);
 
-	if (!videoShown() || (videoIsGifOrUserpic() && !_fullScreenVideo)) {
+	if (!videoShown()/* || (videoIsGifOrUserpic() && !_fullScreenVideo)*/) {
 		return;
 	}
 	_fullScreenVideo = !_fullScreenVideo;
@@ -3350,9 +3354,11 @@ void OverlayWidget::playbackPauseMusic() {
 void OverlayWidget::updatePlaybackState() {
 	Expects(_streamed != nullptr);
 
+	/*
 	if (videoIsGifOrUserpic()) {
 		return;
 	}
+	*/
 	const auto state = _streamed->instance.player().prepareLegacyState();
 	if (state.position != kTimeUnknown && state.length != kTimeUnknown) {
 		_streamed->controls.updatePlayback(state);
