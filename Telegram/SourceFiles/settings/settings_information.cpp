@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "settings/settings_information.h"
 
+#include "kotato/kotato_lang.h"
 #include "editor/photo_editor_layer_widget.h"
 #include "settings/settings_common.h"
 #include "ui/wrap/vertical_layout.h"
@@ -691,9 +692,22 @@ not_null<Ui::SlideWrap<Ui::SettingsButton>*> AccountsList::setupAdd() {
 	const auto button = result->entity();
 
 	const auto add = [=](MTP::Environment environment) {
-		Core::App().preventOrInvoke([=] {
-			Core::App().domain().addActivated(environment);
-		});
+		const auto sure = [=] {
+			Core::App().preventOrInvoke([=] {
+				Core::App().domain().addActivated(environment);
+			});
+		};
+		if (_outerIndex >= Main::Domain::kMaxAccountsWarn) {
+			Ui::show(
+				Ui::MakeConfirmBox({
+					.text = ktr("ktg_too_many_accounts_warning"),
+					.confirmed = sure,
+					.confirmText = ktr("ktg_account_add_anyway"),
+				}),
+				Ui::LayerOption::KeepOther);
+		} else {
+			sure();
+		}
 	};
 
 	button->setAcceptBoth(true);
