@@ -704,10 +704,11 @@ void GenerateItems(
 	const auto fromLink = from->createOpenLink();
 	const auto fromLinkText = Ui::Text::Link(fromName, QString());
 
-	const auto addSimpleServiceMessage = [&](
+	auto addSimpleServiceMessage = [&](
 			const TextWithEntities &text,
-			PhotoData *photo = nullptr) {
-		auto message = HistoryService::PreparedText{ text };
+			PhotoData *photo = nullptr,
+			bool showTime = true) {
+		auto message = HistoryService::PreparedText { text };
 		message.links.push_back(fromLink);
 		addPart(history->makeServiceMessage(
 			history->nextNonHistoryEntryId(),
@@ -715,7 +716,8 @@ void GenerateItems(
 			date,
 			message,
 			peerToUser(from->id),
-			photo));
+			photo,
+			showTime));
 	};
 
 	const auto createChangeTitle = [&](const LogTitle &action) {
@@ -766,7 +768,7 @@ void GenerateItems(
 				? tr::lng_admin_log_removed_description_channel
 				: tr::lng_admin_log_changed_description_channel)
 			)(tr::now, lt_from, fromLinkText, Ui::Text::WithEntities);
-		addSimpleServiceMessage(text);
+		addSimpleServiceMessage(text, nullptr, false);
 
 		const auto body = makeSimpleTextMessage(
 			PrepareText(newValue, QString()));
@@ -791,7 +793,7 @@ void GenerateItems(
 				? tr::lng_admin_log_removed_link_channel
 				: tr::lng_admin_log_changed_link_channel)
 			)(tr::now, lt_from, fromLinkText, Ui::Text::WithEntities);
-		addSimpleServiceMessage(text);
+		addSimpleServiceMessage(text, nullptr, false);
 
 		const auto body = makeSimpleTextMessage(newValue.isEmpty()
 			? TextWithEntities()
@@ -867,7 +869,7 @@ void GenerateItems(
 					lt_from,
 					fromLinkText,
 					Ui::Text::WithEntities);
-			addSimpleServiceMessage(text);
+			addSimpleServiceMessage(text, nullptr, false);
 
 			const auto detachExistingItem = false;
 			addPart(
@@ -902,7 +904,7 @@ void GenerateItems(
 				lt_from,
 				fromLinkText,
 				Ui::Text::WithEntities);
-		addSimpleServiceMessage(text);
+		addSimpleServiceMessage(text, nullptr, false);
 
 		auto oldValue = ExtractEditedText(
 			session,
@@ -934,7 +936,7 @@ void GenerateItems(
 			lt_from,
 			fromLinkText,
 			Ui::Text::WithEntities);
-		addSimpleServiceMessage(text);
+		addSimpleServiceMessage(text, nullptr, false);
 
 		const auto detachExistingItem = false;
 		addPart(
@@ -1067,7 +1069,7 @@ void GenerateItems(
 			lt_from,
 			fromLinkText,
 			Ui::Text::WithEntities);
-		addSimpleServiceMessage(text);
+		addSimpleServiceMessage(text, nullptr, false);
 
 		const auto detachExistingItem = false;
 		addPart(
