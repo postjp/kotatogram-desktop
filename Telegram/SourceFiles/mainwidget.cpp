@@ -1469,13 +1469,13 @@ void MainWidget::ui_showPeerHistory(
 	}
 
 	if (_dialogs && !_dialogs->isHidden()) {
-		if (!back) {
+		// if (!back) {
 			if (const auto history = _history->history()) {
 				_dialogs->scrollToEntry(Dialogs::RowDescriptor(
 					history,
 					FullMsgId(history->peer->id, showAtMsgId)));
 			}
-		}
+		// }
 		_dialogs->update();
 	}
 
