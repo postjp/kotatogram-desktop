@@ -44,11 +44,13 @@ class IndexedList;
 
 namespace Data {
 enum class ForwardOptions;
+enum class GroupingOptions;
 } // namespace Data
 
 namespace Ui {
 class MultiSelect;
 class InputField;
+class DropdownMenu;
 struct ScrollToRequest;
 template <typename Widget>
 class SlideWrap;
@@ -73,14 +75,20 @@ public:
 		std::vector<not_null<PeerData*>>&&,
 		TextWithTags&&,
 		Api::SendOptions,
-		Data::ForwardOptions option)>;
+		Data::ForwardOptions option,
+		Data::GroupingOptions groupOption)>;
 	using FilterCallback = Fn<bool(PeerData*)>;
+	using GoToChatCallback = Fn<void(
+		PeerData*,
+		Data::ForwardOptions option,
+		Data::GroupingOptions groupOption)>;
 
 	struct Descriptor {
 		not_null<Main::Session*> session;
 		CopyCallback copyCallback;
 		SubmitCallback submitCallback;
 		FilterCallback filterCallback;
+		GoToChatCallback goToChatCallback;
 		Fn<void(not_null<Ui::InputField*>)> initSpellchecker;
 		Fn<void(not_null<Ui::InputField*>)> initEditLink;
 		object_ptr<Ui::RpWidget> bottomWidget = { nullptr };
@@ -93,6 +101,8 @@ public:
 			int messagesCount = 0;
 			bool show = false;
 			bool hasCaptions = false;
+			bool hasMedia = false;
+			bool isShare = true;
 		} forwardOptions;
 		HistoryView::ScheduleBoxStyleArgs scheduleBoxStyle;
 	};
@@ -113,6 +123,7 @@ private:
 	void submitSilent();
 	void submitScheduled();
 	void copyLink();
+	void goToChat(not_null<PeerData*> peer);
 	bool searchByUsername(bool useCache = false);
 
 	SendMenu::Type sendMenuType() const;
@@ -122,6 +133,8 @@ private:
 	void applyFilterUpdate(const QString &query);
 	void selectedChanged();
 	void createButtons();
+	bool showForwardMenu(not_null<Ui::IconButton*> button);
+	void updateAdditionalTitle();
 	int getTopScrollSkip() const;
 	int getBottomScrollSkip() const;
 	int contentHeight() const;
@@ -147,7 +160,9 @@ private:
 	object_ptr<Ui::RpWidget> _bottomWidget;
 
 	base::unique_qptr<Ui::PopupMenu> _menu;
+	base::unique_qptr<Ui::DropdownMenu> _topMenu;
 	Ui::ForwardOptions _forwardOptions;
+	Data::GroupingOptions _groupOptions;
 
 	class Inner;
 	QPointer<Inner> _inner;
