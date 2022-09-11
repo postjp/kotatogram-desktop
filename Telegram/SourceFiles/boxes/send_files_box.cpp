@@ -682,9 +682,7 @@ void SendFilesBox::setupCaption() {
 	const auto show = std::make_shared<Window::Show>(_controller);
 	const auto session = &_controller->session();
 
-	_caption->setInstantReplaces(Ui::InstantReplaces::Default());
-	_caption->setInstantReplacesEnabled(
-		Core::App().settings().replaceEmojiValue());
+	_caption->setInstantReplaces(Core::App().settings().instantReplacesValue());
 	_caption->setMarkdownReplacesEnabled(rpl::single(true));
 	_caption->setEditLinkCallback(
 		DefaultEditLinkCallback(show, session, _caption));
