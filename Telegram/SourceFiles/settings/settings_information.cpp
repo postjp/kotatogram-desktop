@@ -557,24 +557,14 @@ void SetupAccountsWrap(
 				crl::guard(raw, std::move(args.handler)),
 				args.icon);
 		});
-		if (!state->menu && IsAltShift(raw->clickModifiers())) {
-			state->menu = base::make_unique_q<Ui::PopupMenu>(
-				raw,
-				st::popupMenuWithIcons);
-			Window::MenuAddMarkAsReadAllChatsAction(window, addAction);
-			state->menu->popup(QCursor::pos());
-			return;
-		}
-		if (&session->account() == &Core::App().activeAccount()
-			|| state->menu) {
-			return;
-		}
 		state->menu = base::make_unique_q<Ui::PopupMenu>(
 			raw,
 			st::popupMenuWithIcons);
-		addAction(tr::lng_menu_activate(tr::now), [=] {
-			Core::App().domain().activate(&session->account());
-		}, &st::menuIconProfile);
+		if (&session->account() != &Core::App().activeAccount()) {
+			addAction(tr::lng_menu_activate(tr::now), [=] {
+				Core::App().domain().activate(&session->account());
+			}, &st::menuIconProfile);
+		}
 
 		auto logoutCallback = [=] {
 			const auto callback = [=](Fn<void()> &&close) {
