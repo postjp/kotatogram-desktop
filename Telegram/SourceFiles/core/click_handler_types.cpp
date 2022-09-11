@@ -14,7 +14,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "mainwindow.h"
 #include "main/main_session.h"
 #include "ui/boxes/confirm_box.h"
+#include "kotato/boxes/kotato_confirm_box.h"
 #include "ui/text/text_entity.h"
+#include "ui/text/text_utilities.h"
 #include "ui/toast/toast.h"
 #include "base/qthelp_regex.h"
 #include "base/qt/qt_key_modifiers.h"
@@ -118,13 +120,12 @@ void HiddenUrlClickHandler::Open(QString url, QVariant context) {
 				? QString::fromUtf8(parsedUrl.toEncoded())
 				: ShowEncoded(displayed);
 			Ui::show(
-				Ui::MakeConfirmBox({
-					.text = (tr::lng_open_this_link(tr::now)
-						+ qsl("\n\n")
-						+ displayUrl),
-					.confirmed = [=] { Ui::hideLayer(); open(); },
-					.confirmText = tr::lng_open_link(),
-				}),
+				Box<Kotato::ConfirmBox>(
+					tr::lng_open_this_link(tr::now, Ui::Text::WithEntities)
+						.append("\n\n")
+						.append(Ui::Text::Link(displayUrl, displayUrl)),
+					tr::lng_open_link(tr::now),
+					[=] { Ui::hideLayer(); open(); }),
 				Ui::LayerOption::KeepOther);
 		} else {
 			open();
