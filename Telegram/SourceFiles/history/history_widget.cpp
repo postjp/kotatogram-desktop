@@ -1967,6 +1967,10 @@ void HistoryWidget::setupShortcuts() {
 				saveCloudDraft();
 				return true;
 			});
+			request->check(Command::JumpToDate, 1) && request->handle([=] {
+				controller()->showCalendar(Dialogs::Key(_history), QDateTime());
+				return true;
+			});
 		}
 	}, lifetime());
 }
