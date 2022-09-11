@@ -35,6 +35,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/text/text.h"
 #include "ui/text/text_options.h"
 #include "ui/special_buttons.h"
+#include "ui/text/text_options.h"
 #include "ui/unread_badge.h"
 #include "ui/ui_utility.h"
 #include "window/window_adaptive.h"
@@ -86,17 +87,17 @@ TopBarWidget::TopBarWidget(
 	not_null<Window::SessionController*> controller)
 : RpWidget(parent)
 , _controller(controller)
-, _clear(this, tr::lng_selected_clear(), st::topBarClearButton)
-, _forward(this, tr::lng_selected_forward(), st::defaultActiveButton)
-, _sendNow(this, tr::lng_selected_send_now(), st::defaultActiveButton)
-, _delete(this, tr::lng_selected_delete(), st::defaultActiveButton)
-, _back(this, st::historyTopBarBack)
+, _clear(this, tr::lng_selected_clear(), st::ktgTopBarClearButton)
+, _forward(this, tr::lng_selected_forward(), st::ktgTopBarActiveButton)
+, _sendNow(this, tr::lng_selected_send_now(), st::ktgTopBarActiveButton)
+, _delete(this, tr::lng_selected_delete(), st::ktgTopBarActiveButton)
+, _back(this, st::ktgHistoryTopBarBack)
 , _cancelChoose(this, st::topBarCloseChoose)
-, _call(this, st::topBarCall)
+, _call(this, st::ktgTopBarCall)
 , _groupCall(this, st::topBarGroupCall)
-, _search(this, st::topBarSearch)
-, _infoToggle(this, st::topBarInfo)
-, _menuToggle(this, st::topBarMenuToggle)
+, _search(this, st::ktgTopBarSearch)
+, _infoToggle(this, st::ktgTopBarInfo)
+, _menuToggle(this, st::ktgTopBarMenuToggle)
 , _titlePeerText(st::windowMinWidth / 3)
 , _onlineUpdater([=] { updateOnlineDisplay(); }) {
 	setAttribute(Qt::WA_OpaquePaintEvent);
@@ -423,7 +424,7 @@ void TopBarWidget::paintEvent(QPaintEvent *e) {
 	auto selectedButtonsTop = countSelectedButtonsTop(
 		_selectedShown.value(showSelectedActions() ? 1. : 0.));
 
-	p.fillRect(QRect(0, 0, width(), st::topBarHeight), st::topBarBg);
+	p.fillRect(QRect(0, 0, width(), st::topBarHeight), st::ktgTopBarBg);
 	if (selectedButtonsTop < 0) {
 		p.translate(0, selectedButtonsTop + st::topBarHeight);
 		paintTopBar(p);
@@ -485,7 +486,7 @@ void TopBarWidget::paintTopBar(Painter &p) {
 		if (availableWidth < textWidth) {
 			text = st::historySavedFont->elided(text, availableWidth);
 		}
-		p.setPen(st::dialogsNameFg);
+		p.setPen(st::ktgTopBarNameFg);
 		p.setFont(st::historySavedFont);
 		p.drawTextLeft(
 			nameleft,
@@ -495,7 +496,7 @@ void TopBarWidget::paintTopBar(Painter &p) {
 	} else if (_activeChat.section == Section::Replies
 			|| _activeChat.section == Section::Scheduled
 			|| _activeChat.section == Section::Pinned) {
-		p.setPen(st::dialogsNameFg);
+		p.setPen(st::ktgTopBarNameFg);
 
 		Ui::Text::String textStr;
 		textStr.setText(
@@ -517,9 +518,9 @@ void TopBarWidget::paintTopBar(Painter &p) {
 					statustop,
 					availableWidth,
 					width(),
-					st::historyStatusFgTyping,
+					st::ktgTopBarStatusFgActive,
 					now))) {
-			p.setPen(st::historyStatusFg);
+			p.setPen(st::ktgTopBarStatusFg);
 			p.drawTextLeft(nameleft, statustop, width(), _customTitleText);
 		}
 	} else if (const auto history = _activeChat.key.history()) {
@@ -541,7 +542,7 @@ void TopBarWidget::paintTopBar(Painter &p) {
 			badgeStyle);
 		const auto namewidth = availableWidth - badgeWidth;
 
-		p.setPen(st::dialogsNameFg);
+		p.setPen(st::ktgTopBarNameFg);
 		peer->topBarNameText().drawElided(
 			p,
 			nameleft,
@@ -556,7 +557,7 @@ void TopBarWidget::paintTopBar(Painter &p) {
 				statustop,
 				availableWidth,
 				width(),
-				st::historyStatusFgTyping,
+				st::ktgTopBarStatusFgActive,
 				now)) {
 			paintStatus(p, nameleft, statustop, availableWidth, width());
 		}
@@ -610,7 +611,7 @@ bool TopBarWidget::paintConnectingState(
 	left += st::topBarConnectingPosition.x()
 		+ st::topBarConnectingAnimation.size.width()
 		+ st::topBarConnectingSkip;
-	p.setPen(st::historyStatusFg);
+	p.setPen(st::ktgTopBarStatusFg);
 	p.drawTextLeft(left, top, outerWidth, tr::lng_status_connecting(tr::now));
 	return true;
 }
@@ -622,8 +623,8 @@ void TopBarWidget::paintStatus(
 		int availableWidth,
 		int outerWidth) {
 	p.setPen(_titlePeerTextOnline
-		? st::historyStatusFgActive
-		: st::historyStatusFg);
+		? st::ktgTopBarStatusFgActive
+		: st::ktgTopBarStatusFg);
 	_titlePeerText.drawLeftElided(p, left, top, availableWidth, outerWidth);
 }
 
@@ -1139,10 +1140,10 @@ void TopBarWidget::updateInfoToggleActive() {
 		&& (Core::App().settings().thirdSectionInfoEnabled()
 			|| Core::App().settings().tabbedReplacedWithInfo());
 	auto iconOverride = infoThirdActive
-		? &st::topBarInfoActive
+		? &st::ktgTopBarInfoActive
 		: nullptr;
 	auto rippleOverride = infoThirdActive
-		? &st::lightButtonBgOver
+		? &st::ktgTopBarIconBgActiveRipple
 		: nullptr;
 	_infoToggle->setIconOverride(iconOverride, iconOverride);
 	_infoToggle->setRippleColorOverride(rippleOverride);
