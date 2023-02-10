@@ -1,4 +1,4 @@
-name: Linux Kotato.  
+name: Linux Kotato.
 
 on:
   push:
@@ -334,7 +334,7 @@ jobs:
           git clone -b 1.5.9 --depth=1 $GIT/anholt/libepoxy.git
 
           cd libepoxy
-          git apply ../libepoxy.patch
+          git apply ../patches/libepoxy.patch
 
           meson build \
           --buildtype=release \
@@ -361,11 +361,11 @@ jobs:
           cd qt_${QT}
           perl init-repository --module-subset=qtbase,qtwayland,qtimageformats,qtsvg,qt5compat,qttools
           cd qtbase
-          find ../../qtbase_${QT} -type f -print0 | sort -z | xargs -r0 git apply
+          find ../../patches/qtbase_${QT} -type f -print0 | sort -z | xargs -r0 git apply
           cd ../qtwayland
-          find ../../qtwayland_${QT} -type f -print0 | sort -z | xargs -r0 git apply
+          find ../../patches/qtwayland_${QT} -type f -print0 | sort -z | xargs -r0 git apply
           cd ../qt5compat
-          find ../../qt5compat_${QT} -type f -print0 | sort -z | xargs -r0 git apply
+          find ../../patches/qt5compat_${QT} -type f -print0 | sort -z | xargs -r0 git apply
           cd ..
 
           ./configure -prefix /usr/local \
