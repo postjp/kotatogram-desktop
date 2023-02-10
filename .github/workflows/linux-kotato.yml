@@ -331,10 +331,10 @@ jobs:
         run: |
           cd $LibrariesPath
 
-          git clone -b 1.5.9 --depth=1 $GIT/anholt/libepoxy.git
+          git clone -b 0.4.17 --depth=1 $GIT/libproxy/libproxy.git 
 
-          cd libepoxy
-          git apply ../patches/libepoxy.patch
+          cd libproxy
+          git apply ../patches/libproxy.patch
 
           meson build \
           --buildtype=release \
@@ -344,7 +344,7 @@ jobs:
           meson compile -C build
           meson install -C build
           cd ..
-          rm -rf libepoxy
+          rm -rf libproxy
 
       - name: Qt 6.2.3 cache.
         id: cache-qt
