@@ -2318,26 +2318,26 @@ bool HistoryInner::hasCopyRestriction(HistoryItem *item) const {
 }
 
 bool HistoryInner::showCopyRestriction(HistoryItem *item) {
-	if (!hasCopyRestriction(item)) {
+	/*if (!hasCopyRestriction(item)) {
 		return false;
 	}
 	Ui::ShowMultilineToast({
 		.text = { _peer->isBroadcast()
 			? tr::lng_error_nocopy_channel(tr::now)
 			: tr::lng_error_nocopy_group(tr::now) },
-	});
-	return true;
+	});*/
+	return false;
 }
 
 bool HistoryInner::hasCopyRestrictionForSelected() const {
-	if (hasCopyRestriction()) {
+	/*if (hasCopyRestriction()) {
 		return true;
 	}
 	for (const auto &[item, selection] : _selected) {
 		if (item && item->forbidsForward()) {
 			return true;
 		}
-	}
+	}*/
 	return false;
 }
 
