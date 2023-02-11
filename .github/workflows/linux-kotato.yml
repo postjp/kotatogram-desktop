@@ -322,7 +322,7 @@ jobs:
           cd $LibrariesPath
           git clone -b v6.2.3 --depth=1 git://code.qt.io/qt/qt5.git qt_${QT}
           cd qt_${QT}
-          perl init-repository --module-subset=qtbase,qtwayland,qtimageformats,qtsvg,qt5compat,qttools
+          perl init-repository --module-subset=qtbase,qtwayland,qtimageformats,qtsvg,qt5compat,qttools,qtdeclarative
           cd qtbase
           find ../../patches/qtbase_${QT} -type f -print0 | sort -z | xargs -r0 git apply
           cd ../qtwayland
