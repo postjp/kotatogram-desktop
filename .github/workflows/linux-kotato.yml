@@ -141,6 +141,12 @@ jobs:
       - name: Patches.
         run: |
           cd $LibrariesPath
+          git init
+          git remote add origin https://github.com/desktop-app/patches.git
+          git pull origin master
+          git branch --set-upstream-to=origin/master master
+          git pull
+
           git fetch --depth=1 --no-write-fetch-head git@github.com/desktop-app/patches.git 5a7ba9ae3e0c61cc327aae483c74f6e6ff4058b6
           git branch master 5a7ba9ae3e0c61cc327aae483c74f6e6ff4058b6
           git checkout
