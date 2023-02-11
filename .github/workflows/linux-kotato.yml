@@ -142,7 +142,7 @@ jobs:
         run: |
           cd $LibrariesPath
           git clone  $GIT/desktop-app/patches.git
-          git checkout 5a7ba9ae3e0c61cc327aae483c74f6e6ff4058b6
+          git checkout 5a7ba9ae3e0c61cc327aae483c74f6e6ff4058b6 -b master
       - name: Rnnoise.
         run: |
           cd $LibrariesPath
