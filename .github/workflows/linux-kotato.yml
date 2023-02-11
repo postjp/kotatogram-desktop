@@ -87,11 +87,9 @@ jobs:
           p() {
             echo "path-exclude=/usr/share/$1/*" >> $cfgFile
           }
-
           p man
           p locale
           p doc
-
       - name: Apt install.
         run: |
           apt-get update
@@ -116,7 +114,6 @@ jobs:
           update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 60 && \
           update-alternatives --config gcc && \
           add-apt-repository --remove ppa:ubuntu-toolchain-r/test -y
-
       - name: Clone.
         uses: actions/checkout@v2
         with:
@@ -127,10 +124,8 @@ jobs:
         run: |
           wget -c -nv "$GIT/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-
           ./linuxdeployqt-continuous-x86_64.AppImage -version
           gcc --version
-
           gcc --version > CACHE_KEY.txt
           echo $MANUAL_CACHING >> CACHE_KEY.txt
           if [ "$AUTO_CACHING" = "1" ]; then
@@ -139,62 +134,49 @@ jobs:
           fi
           md5cache=$(md5sum CACHE_KEY.txt | cut -c -32)
           echo "CACHE_KEY=$md5cache" >> $GITHUB_ENV
-
           mkdir -p Libraries
           cd Libraries
           echo "LibrariesPath=`pwd`" >> $GITHUB_ENV
-
           wget -O tg_owt-version.json https://api.github.com/repos/desktop-app/tg_owt/git/refs/heads/master
-
       - name: Patches.
         run: |
           cd $LibrariesPath
-          git clone --depth=1 $GIT/desktop-app/patches.git
-
+          git clone  $GIT/desktop-app/patches.git
+          git checkout 5a7ba9ae3e0c61cc327aae483c74f6e6ff4058b6
       - name: Rnnoise.
         run: |
           cd $LibrariesPath
-
           git clone --depth=1 https://gitlab.xiph.org/xiph/rnnoise.git
           cd rnnoise
           ./autogen.sh
           ./configure --disable-examples --disable-doc
           make -j$(nproc)
           make install
-
       - name: CMake.
         run: |
           cd $LibrariesPath
-
           file=cmake-$CMAKE_VER-Linux-x86_64.sh
           wget $GIT/Kitware/CMake/releases/download/v$CMAKE_VER/$file
           mkdir /opt/cmake
           sh $file --prefix=/opt/cmake --skip-license
           ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
           rm $file
-
           cmake --version
-
       - name: Meson.
         run: |
           python3 -m pip install meson==0.54.0
           meson --version
-
       - name: Ninja.
         run: |
           cd $LibrariesPath
-
           wget $GIT/ninja-build/ninja/releases/download/v1.10.0/ninja-linux.zip
           unzip ninja-linux.zip
           chmod +x ninja
           mv ninja /usr/local/bin
-
           ninja --version
-
       - name: MozJPEG.
         run: |
           cd $LibrariesPath
-
           git clone -b v4.0.3 --depth=1 $GIT/mozilla/mozjpeg.git
           cd mozjpeg
           cmake -B build -GNinja . \
@@ -206,7 +188,6 @@ jobs:
           cmake --install build
           cd ..
           rm -rf mozjpeg
-
       - name: Opus cache.
         id: cache-opus
         uses: actions/cache@v2
@@ -217,7 +198,6 @@ jobs:
         if: steps.cache-opus.outputs.cache-hit != 'true'
         run: |
           cd $LibrariesPath
-
           git clone -b v1.3.1 --depth=1 $GIT/xiph/opus
           cd opus
           ./autogen.sh
@@ -227,7 +207,6 @@ jobs:
         run: |
           cd $LibrariesPath/opus
           make install
-
       - name: VPX cache.
         id: cache-vpx
         uses: actions/cache@v2
@@ -238,7 +217,6 @@ jobs:
         if: steps.cache-vpx.outputs.cache-hit != 'true'
         run: |
           cd $LibrariesPath
-
           git clone -b v1.11.0 --depth=1 $GIT/webmproject/libvpx.git
           cd libvpx
           ./configure \
@@ -252,7 +230,6 @@ jobs:
           --enable-vp8 \
           --enable-vp9 \
           --enable-webm-io
-
           make -j$(nproc)
           make DESTDIR="$LibrariesPath/vpx-cache" install
           cd ..
@@ -262,7 +239,6 @@ jobs:
           cd $LibrariesPath
           cp -R vpx-cache/. /
           ldconfig
-
       - name: FFmpeg cache.
         id: cache-ffmpeg
         uses: actions/cache@v2
@@ -273,7 +249,6 @@ jobs:
         if: steps.cache-ffmpeg.outputs.cache-hit != 'true'
         run: |
           cd $LibrariesPath
-
           git clone --branch release/4.4 --depth=1 $GIT/FFmpeg/FFmpeg ffmpeg
           cd ffmpeg
           ./configure \
@@ -296,7 +271,6 @@ jobs:
           --enable-encoder=libopus \
           --enable-muxer=ogg \
           --enable-muxer=opus
-
           make -j$(nproc)
           make DESTDIR="$LibrariesPath/ffmpeg-cache" install
           cd ..
@@ -306,11 +280,9 @@ jobs:
           cd $LibrariesPath
           cp -R ffmpeg-cache/. /
           ldconfig
-
       - name: OpenAL Soft.
         run: |
           cd $LibrariesPath
-
           git clone -b fix_pulse_default --depth=1 $GIT/telegramdesktop/openal-soft.git
           cd openal-soft
           cmake -B build -GNinja \
@@ -319,33 +291,25 @@ jobs:
           -DALSOFT_TESTS=OFF \
           -DALSOFT_UTILS=OFF \
           -DALSOFT_CONFIG=OFF
-
           cmake --build build --parallel
           cmake --install build
           ldconfig
-
           cd -
           rm -rf openal-soft
-
       - name: Libepoxy.
         run: |
           cd $LibrariesPath
-
-          git clone -b 0.4.17 --depth=1 $GIT/libproxy/libproxy.git 
-
-          cd libproxy
-          git apply ../patches/libproxy.patch
-
+          git clone -b 1.5.9 --depth=1 $GIT/anholt/libepoxy.git
+          cd libepoxy
+          git apply ../patches/libepoxy.patch
           meson build \
           --buildtype=release \
           --default-library=static \
           -Dtests=false
-
           meson compile -C build
           meson install -C build
           cd ..
-          rm -rf libproxy
-
+          rm -rf libepoxy
       - name: Qt 6.2.3 cache.
         id: cache-qt
         uses: actions/cache@v2
@@ -356,7 +320,6 @@ jobs:
         if: steps.cache-qt.outputs.cache-hit != 'true'
         run: |
           cd $LibrariesPath
-
           git clone -b v6.2.3 --depth=1 git://code.qt.io/qt/qt5.git qt_${QT}
           cd qt_${QT}
           perl init-repository --module-subset=qtbase,qtwayland,qtimageformats,qtsvg,qt5compat,qttools
@@ -367,7 +330,6 @@ jobs:
           cd ../qt5compat
           find ../../patches/qt5compat_${QT} -type f -print0 | sort -z | xargs -r0 git apply
           cd ..
-
           ./configure -prefix /usr/local \
           -release \
           -opensource \
@@ -380,7 +342,6 @@ jobs:
           -openssl-linked \
           -nomake examples \
           -nomake tests
-
           cmake --build . --parallel
           DESTDIR="$LibrariesPath/qt-cache" cmake --install .
           cd ..
@@ -390,11 +351,9 @@ jobs:
           cd $LibrariesPath
           cp -R qt-cache/. /
           ldconfig
-
       - name: Qt6Gtk2.
         run: |
           cd $LibrariesPath
-
           git clone -b 0.1 --depth=1 $GIT/trialuser02/qt6gtk2.git
           cd qt6gtk2
           wget https://github.com/trialuser02/qt6gtk2/commit/3d2cf8cbade92a175b2c878090f5f44a1b8a395c.patch
@@ -404,11 +363,9 @@ jobs:
           make install
           cd ..
           rm -rf qt6gtk2
-
       - name: Qt6Ct.
         run: |
           cd $LibrariesPath
-
           git clone -b 0.5 --depth=1 $GIT/trialuser02/qt6ct.git
           cd qt6ct
           cmake -B build -GNinja -DCMAKE_BUILD_TYPE=Release
@@ -416,11 +373,9 @@ jobs:
           cmake --install build
           cd ..
           rm -rf qt6ct
-
       - name: Kvantum.
         run: |
           cd $LibrariesPath
-
           git clone -b V1.0.0 --depth=1 $GIT/tsujan/Kvantum.git
           cd Kvantum/Kvantum
           cmake -B build -GNinja -DCMAKE_BUILD_TYPE=Release -DENABLE_QT5=OFF
@@ -428,7 +383,6 @@ jobs:
           cmake --install build
           cd ../..
           rm -rf Kvantum
-
       - name: WebRTC cache.
         id: cache-webrtc
         uses: actions/cache@v2
@@ -439,7 +393,6 @@ jobs:
         if: steps.cache-webrtc.outputs.cache-hit != 'true'
         run: |
           cd $LibrariesPath
-
           mkdir tg_owt
           cd tg_owt
           git init
@@ -448,25 +401,20 @@ jobs:
           git reset --hard FETCH_HEAD
           git submodule init
           git submodule update
-
           cd src/third_party/pipewire
           meson build -Dspa-plugins=disabled
           cd ../../..
-
           cmake -B build -GNinja . \
           -DCMAKE_BUILD_TYPE=Release \
           -DBUILD_SHARED_LIBS=OFF \
           -DTG_OWT_DLOPEN_PIPEWIRE=ON
-
           cmake --build build --parallel
-
       - name: Kotatogram Desktop build.
         if: env.ONLY_CACHE == 'false'
         env:
           tg_owt_DIR: ${{ env.LibrariesPath }}/tg_owt/build
         run: |
           cd $REPO_NAME/Telegram
-
           DEFINE=""
           if [ -n "${{ matrix.defines }}" ]; then
             DEFINE="-D ${{ matrix.defines }}=ON"
@@ -475,7 +423,6 @@ jobs:
           else
             echo "ARTIFACT_NAME=Kotatogram" >> $GITHUB_ENV
           fi
-
           ./configure.sh \
           -DCMAKE_INSTALL_PREFIX=/usr \
           -DCMAKE_C_FLAGS="-Werror" \
@@ -484,42 +431,34 @@ jobs:
           -DTDESKTOP_API_TEST=ON \
           -DDESKTOP_APP_USE_PACKAGED_LAZY=ON \
           $DEFINE
-
           cmake --build ../out --config Debug --parallel
           DESTDIR=../AppDir cmake --install ../out --config Debug
-
       - name: AppImage build.
         if: env.ONLY_CACHE == 'false'
         run: |
           # Let appimagetool determine the repository
           cd $REPO_NAME
-
           ../linuxdeployqt-continuous-x86_64.AppImage \
           AppDir/usr/share/applications/*.desktop \
           -appimage \
           -exclude-libs=libatk-1.0.so.0,libatk-bridge-2.0.so.0,libatspi.so.0,libcairo-gobject.so.2,libcairo.so.2,libgdk-3.so.0,libgdk_pixbuf-2.0.so.0,libgdk-x11-2.0.so.0,libgmodule-2.0.so.0,libgtk-3.so.0,libgtk-x11-2.0.so.0,libpixman-1.so.0,libpng12.so.0 \
           -extra-plugins=iconengines,imageformats,platforminputcontexts,platforms/libqwayland-egl.so,platforms/libqwayland-generic.so,platforms/libqxcb.so,platformthemes/libqgtk3.so,platformthemes/libqxdgdesktopportal.so,platformthemes/libqt6ct.so,platformthemes/libqt6gtk2.so,styles/libqt6ct-style.so,styles/libqt6gtk2-style.so,styles/libkvantum.so,tls,wayland-decoration-client,wayland-graphics-integration-client,wayland-shell-integration,xcbglintegrations
-
           appimage_name=$(echo Kotatogram_Desktop*.AppImage)
           echo "APPIMAGE_NAME=$appimage_name" >> $GITHUB_ENV
-
           # We don't need AppImageLauncher's desktop integration due to bad UX
           dd if=/dev/zero of=$appimage_name bs=1 count=3 seek=8 conv=notrunc
-
       - name: Check.
         if: env.ONLY_CACHE == 'false'
         run: |
           filePath="$REPO_NAME/$APPIMAGE_NAME"
           if test -f "$filePath"; then
             echo "Build successfully done! :)"
-
             size=$(stat -c %s "$filePath")
             echo "File size of ${filePath}: ${size} Bytes."
           else
             echo "Build error, output file does not exist."
             exit 1
           fi
-
       - name: Move artifact.
         if: env.UPLOAD_ARTIFACT == 'true'
         run: |
