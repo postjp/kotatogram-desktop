@@ -1218,12 +1218,11 @@ bool ListWidget::isEmpty() const {
 }
 
 bool ListWidget::hasCopyRestriction(HistoryItem *item) const {
-	return _delegate->listCopyRestrictionType(item)
-		!= CopyRestrictionType::None;
+	return false;
 }
 
 bool ListWidget::showCopyRestriction(HistoryItem *item) {
-	const auto type = _delegate->listCopyRestrictionType(item);
+	/*const auto type = _delegate->listCopyRestrictionType(item);
 	if (type == CopyRestrictionType::None) {
 		return false;
 	}
@@ -1231,12 +1230,12 @@ bool ListWidget::showCopyRestriction(HistoryItem *item) {
 		.text = { (type == CopyRestrictionType::Channel)
 			? tr::lng_error_nocopy_channel(tr::now)
 			: tr::lng_error_nocopy_group(tr::now) },
-	});
-	return true;
+	});*/
+	return false;
 }
 
 bool ListWidget::hasCopyRestrictionForSelected() const {
-	if (hasCopyRestriction()) {
+	/*if (hasCopyRestriction()) {
 		return true;
 	}
 	for (const auto &[itemId, selection] : _selected) {
@@ -1245,7 +1244,7 @@ bool ListWidget::hasCopyRestrictionForSelected() const {
 				return true;
 			}
 		}
-	}
+	}*/
 	return false;
 }
 
