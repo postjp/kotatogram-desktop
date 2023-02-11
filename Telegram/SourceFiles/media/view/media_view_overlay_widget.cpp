@@ -560,12 +560,11 @@ QSize OverlayWidget::flipSizeByRotation(QSize size) const {
 }
 
 bool OverlayWidget::hasCopyRestriction() const {
-	return (_history && !_history->peer->allowsForwarding())
-		|| (_message && _message->forbidsForward());
+	return false;
 }
 
 bool OverlayWidget::showCopyRestriction() {
-	if (!hasCopyRestriction()) {
+	/*if (!hasCopyRestriction()) {
 		return false;
 	}
 	Ui::ShowMultilineToast({
@@ -573,7 +572,7 @@ bool OverlayWidget::showCopyRestriction() {
 		.text = { _history->peer->isBroadcast()
 			? tr::lng_error_nocopy_channel(tr::now)
 			: tr::lng_error_nocopy_group(tr::now) },
-	});
+	});*/
 	return true;
 }
 
